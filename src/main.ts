@@ -43,12 +43,12 @@ async function run() {
     const inputs = getInputs();
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
     const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, CHANGED_FILES } = inputs;
-
+    console.log(CHANGED_FILES)
     console.log(github.context.payload)
     const { pull_request: pullRequest } = github.context.payload;
 
     if (typeof pullRequest === "undefined") {
-      throw new Error(github.context.payload);
+      throw new Error(`Missing 'pull_request' from github action context.`);
     }
 
     // github octokit client with given token

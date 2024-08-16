@@ -129,6 +129,7 @@ export namespace JIRA {
       labels: string[];
       customfield_10052: JIRA.PartialUser[]
       [k: string]: unknown;
+      customfield_10043: string;
     };
   }
 }
@@ -154,6 +155,7 @@ export interface JIRADetails {
     emailAddress: string;
   };
   labels: readonly { name: string; url: string }[];
+  products: string;
 }
 
 export interface ActionInputs {

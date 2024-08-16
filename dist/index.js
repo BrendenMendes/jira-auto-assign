@@ -9656,6 +9656,10 @@ const getInputs = () => {
     const JIRA_EMAIL = core.getInput("jira-email", {
         required: true,
     });
+    const CHANGED_FILES = core.getInput("changed-files", {
+        required: true
+    });
+    console.log(ISSUE_KEY, JIRA_TOKEN, USERNAME, JIRA_EMAIL, CHANGED_FILES);
     return {
         ISSUE_KEY,
         JIRA_TOKEN,
@@ -9665,6 +9669,7 @@ const getInputs = () => {
         JIRA_DOMAIN: JIRA_DOMAIN.endsWith("/")
             ? JIRA_DOMAIN.replace(/\/$/, "")
             : JIRA_DOMAIN,
+        CHANGED_FILES
     };
 };
 function run() {
@@ -9672,7 +9677,9 @@ function run() {
         try {
             const inputs = getInputs();
             core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
-            const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
+            const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, CHANGED_FILES } = inputs;
+            console.log(CHANGED_FILES);
+            console.log(github.context.payload);
             const { pull_request: pullRequest } = github.context.payload;
             if (typeof pullRequest === "undefined") {
                 throw new Error(`Missing 'pull_request' from github action context.`);
@@ -9694,7 +9701,7 @@ function run() {
             });
             if (!(jiraUser === null || jiraUser === void 0 ? void 0 : jiraUser.displayName))
                 throw new Error(`JIRA account not found for ${user.name}`);
-            const { reviewers } = yield jira.getTicketDetails(ISSUE_KEY);
+            const { reviewers, products } = yield jira.getTicketDetails(ISSUE_KEY);
             /* if (assignee?.name === jiraUser.displayName) {
               console.log(`${ISSUE_KEY} is already assigned to ${assignee.name}`);
               return;
@@ -9703,7 +9710,10 @@ function run() {
             console.log(`${ISSUE_KEY} assigned to ${jiraUser.displayName}`);*/
             console.log(jiraUser);
             const obj = {};
-            if (reviewers) {
+            if (products) {
+                // products.forEach((product) => )
+            }
+            else if (reviewers) {
                 reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
             }
             obj[jiraUser.accountId] = {
@@ -9785,7 +9795,7 @@ const getJIRAClient = (domain, email, token) => {
     });
     const getIssue = (id) => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const response = yield client.get(`/issue/${id}?fields=project,summary,issuetype,labels,status,customfield_10052`);
+            const response = yield client.get(`/issue/${id}?fields=project,summary,issuetype,labels,status,customfield_10052,customfield_10043`);
             return response.data;
         }
         catch (e) {
@@ -9795,7 +9805,7 @@ const getJIRAClient = (domain, email, token) => {
     const getTicketDetails = (key) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const issue = yield getIssue(key);
-            const { fields: { assignee, issuetype: type, project, summary, customfield_10016: estimate, customfield_10052: reviewers, labels: rawLabels, status: issueStatus, }, } = issue;
+            const { fields: { assignee, issuetype: type, project, summary, customfield_10016: estimate, customfield_10052: reviewers, customfield_10043: products, labels: rawLabels, status: issueStatus, }, } = issue;
             const labels = rawLabels.map((label) => ({
                 name: label,
                 url: `${baseURL}/issues?jql=${encodeURIComponent(`project = ${project.key} AND labels = ${label} ORDER BY created DESC`)}`,
@@ -9820,11 +9830,19 @@ const getJIRAClient = (domain, email, token) => {
                     ? estimate
                     : "N/A",
                 labels,
+                products
             };
         }
         catch (e) {
             throw e;
         }
+    });
+    const setApp = ({ apps, issueKey }) => __awaiter(void 0, void 0, void 0, function* () {
+        yield client.put(`issue/${issueKey}`, {
+            fields: {
+                customfield_10043: apps
+            }
+        });
     });
     return {
         client,
@@ -9832,7 +9850,8 @@ const getJIRAClient = (domain, email, token) => {
         getIssue,
         findUser,
         assignUser,
-        setReviewer
+        setReviewer,
+        setApp
     };
 };
 exports.getJIRAClient = getJIRAClient;
@@ -9852,7 +9871,7 @@ module.exports = eval("require")("encoding");
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse("{\"_args\":[[\"axios@0.21.1\",\"/home/zacknewsham/Sites/justplay/jira-auto-assign\"]],\"_from\":\"axios@0.21.1\",\"_id\":\"axios@0.21.1\",\"_inBundle\":false,\"_integrity\":\"sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==\",\"_location\":\"/axios\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"axios@0.21.1\",\"name\":\"axios\",\"escapedName\":\"axios\",\"rawSpec\":\"0.21.1\",\"saveSpec\":null,\"fetchSpec\":\"0.21.1\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmjs.org/axios/-/axios-0.21.1.tgz\",\"_spec\":\"0.21.1\",\"_where\":\"/home/zacknewsham/Sites/justplay/jira-auto-assign\",\"author\":{\"name\":\"Matt Zabriskie\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}],\"dependencies\":{\"follow-redirects\":\"^1.10.0\"},\"description\":\"Promise based HTTP client for the browser and node.js\",\"devDependencies\":{\"bundlesize\":\"^0.17.0\",\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.0.2\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^20.1.0\",\"grunt-karma\":\"^2.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^1.0.18\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^1.3.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-coverage\":\"^1.1.1\",\"karma-firefox-launcher\":\"^1.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-opera-launcher\":\"^1.0.0\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^1.2.0\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.7\",\"karma-webpack\":\"^1.7.0\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^5.2.0\",\"sinon\":\"^4.5.0\",\"typescript\":\"^2.8.1\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^1.13.1\",\"webpack-dev-server\":\"^1.14.1\"},\"homepage\":\"https://github.com/axios/axios\",\"jsdelivr\":\"dist/axios.min.js\",\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"license\":\"MIT\",\"main\":\"index.js\",\"name\":\"axios\",\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/axios/axios.git\"},\"scripts\":{\"build\":\"NODE_ENV=production grunt build\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"examples\":\"node ./examples/server.js\",\"fix\":\"eslint --fix lib/**/*.js\",\"postversion\":\"git push && git push --tags\",\"preversion\":\"npm test\",\"start\":\"node ./sandbox/server.js\",\"test\":\"grunt test && bundlesize\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\"},\"typings\":\"./index.d.ts\",\"unpkg\":\"dist/axios.min.js\",\"version\":\"0.21.1\"}");
+module.exports = JSON.parse("{\"_args\":[[\"axios@0.21.1\",\"/home/justplay/Sites/justplay/jira-auto-assign\"]],\"_from\":\"axios@0.21.1\",\"_id\":\"axios@0.21.1\",\"_inBundle\":false,\"_integrity\":\"sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==\",\"_location\":\"/axios\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"axios@0.21.1\",\"name\":\"axios\",\"escapedName\":\"axios\",\"rawSpec\":\"0.21.1\",\"saveSpec\":null,\"fetchSpec\":\"0.21.1\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmjs.org/axios/-/axios-0.21.1.tgz\",\"_spec\":\"0.21.1\",\"_where\":\"/home/justplay/Sites/justplay/jira-auto-assign\",\"author\":{\"name\":\"Matt Zabriskie\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}],\"dependencies\":{\"follow-redirects\":\"^1.10.0\"},\"description\":\"Promise based HTTP client for the browser and node.js\",\"devDependencies\":{\"bundlesize\":\"^0.17.0\",\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.0.2\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^20.1.0\",\"grunt-karma\":\"^2.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^1.0.18\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^1.3.0\",\"karma-chrome-launcher\":\"^2.2.0\",\"karma-coverage\":\"^1.1.1\",\"karma-firefox-launcher\":\"^1.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-opera-launcher\":\"^1.0.0\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^1.2.0\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.7\",\"karma-webpack\":\"^1.7.0\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^5.2.0\",\"sinon\":\"^4.5.0\",\"typescript\":\"^2.8.1\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^1.13.1\",\"webpack-dev-server\":\"^1.14.1\"},\"homepage\":\"https://github.com/axios/axios\",\"jsdelivr\":\"dist/axios.min.js\",\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"license\":\"MIT\",\"main\":\"index.js\",\"name\":\"axios\",\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/axios/axios.git\"},\"scripts\":{\"build\":\"NODE_ENV=production grunt build\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"examples\":\"node ./examples/server.js\",\"fix\":\"eslint --fix lib/**/*.js\",\"postversion\":\"git push && git push --tags\",\"preversion\":\"npm test\",\"start\":\"node ./sandbox/server.js\",\"test\":\"grunt test && bundlesize\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\"},\"typings\":\"./index.d.ts\",\"unpkg\":\"dist/axios.min.js\",\"version\":\"0.21.1\"}");
 
 /***/ }),
 

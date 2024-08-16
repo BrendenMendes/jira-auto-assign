@@ -42,7 +42,7 @@ export const getJIRAClient = (domain: string, email: string, token: string): JIR
   const getIssue: JIRAClient["getIssue"] = async (id) => {
     try {
       const response = await client.get<JIRA.Issue>(
-        `/issue/${id}?fields=project,summary,issuetype,labels,status,customfield_10052`
+        `/issue/${id}?fields=project,summary,issuetype,labels,status,customfield_10052,customfield_10043`
       );
       return response.data;
     } catch (e) {
@@ -116,6 +116,7 @@ export const getJIRAClient = (domain: string, email: string, token: string): JIR
     getIssue,
     findUser,
     assignUser,
-    setReviewer
+    setReviewer,
+    setApp
   };
 };
