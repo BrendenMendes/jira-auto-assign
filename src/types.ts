@@ -163,6 +163,7 @@ export interface ActionInputs {
   GITHUB_TOKEN: string;
   USERNAME: string;
   JIRA_EMAIL: string;
+  CHANGED_FILES: string;
 }
 
 export interface JIRAClient {
