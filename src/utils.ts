@@ -61,6 +61,7 @@ export const getJIRAClient = (domain: string, email: string, token: string): JIR
           summary,
           customfield_10016: estimate,
           customfield_10052: reviewers,
+          customfield_10043: products,
           labels: rawLabels,
           status: issueStatus,
         },
@@ -94,11 +95,20 @@ export const getJIRAClient = (domain: string, email: string, token: string): JIR
             ? estimate
             : "N/A",
         labels,
+        products
       };
     } catch (e) {
       throw e;
     }
   };
+
+  const setApp: JIRAClient["setApp"] = async ({ apps, issueKey }) => {
+    await client.put(`issue/${issueKey}`, {
+      fields: {
+        customfield_10043: apps
+      }
+    });
+  }
 
   return {
     client,

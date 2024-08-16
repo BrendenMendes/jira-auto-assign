@@ -40,6 +40,7 @@ async function run() {
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
     const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
 
+    console.log(github.context.payload)
     const { pull_request: pullRequest } = github.context.payload;
 
     if (typeof pullRequest === "undefined") {
@@ -68,7 +69,7 @@ async function run() {
       throw new Error(`JIRA account not found for ${user.name}`);
 
 
-    const { reviewers } = await jira.getTicketDetails(ISSUE_KEY);
+    const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
     /* if (assignee?.name === jiraUser.displayName) {
       console.log(`${ISSUE_KEY} is already assigned to ${assignee.name}`);
       return;
@@ -77,7 +78,10 @@ async function run() {
     console.log(`${ISSUE_KEY} assigned to ${jiraUser.displayName}`);*/
     console.log(jiraUser);
     const obj: JIRA.PartialUserObj = {};
-    if (reviewers) {
+    if (products) {
+      // products.forEach((product) => )
+    }
+    else if (reviewers) {
       reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
     }
     obj[jiraUser.accountId] = {
