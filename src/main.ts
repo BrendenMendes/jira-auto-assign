@@ -24,7 +24,7 @@ const getInputs = (): ActionInputs => {
   const CHANGED_FILES: string = core.getInput("changed-files", {
     required: true
   });
-
+  console.log(ISSUE_KEY, JIRA_TOKEN, USERNAME, JIRA_EMAIL, CHANGED_FILES)
   return {
     ISSUE_KEY,
     JIRA_TOKEN,
