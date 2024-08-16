@@ -21,6 +21,9 @@ const getInputs = (): ActionInputs => {
   const JIRA_EMAIL: string = core.getInput("jira-email", {
     required: true,
   });
+  const CHANGED_FILES: string = core.getInput("changed-files", {
+    required: true
+  });
 
   return {
     ISSUE_KEY,
@@ -31,6 +34,7 @@ const getInputs = (): ActionInputs => {
     JIRA_DOMAIN: JIRA_DOMAIN.endsWith("/")
       ? JIRA_DOMAIN.replace(/\/$/, "")
       : JIRA_DOMAIN,
+    CHANGED_FILES
   };
 };
 
@@ -38,7 +42,7 @@ async function run() {
   try {
     const inputs = getInputs();
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
-    const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
+    const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, CHANGED_FILES } = inputs;
 
     console.log(github.context.payload)
     const { pull_request: pullRequest } = github.context.payload;
