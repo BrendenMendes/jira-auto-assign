@@ -47,9 +47,9 @@ async function run() {
     console.log(github.context.payload)
     const { pull_request: pullRequest } = github.context.payload;
 
-    // if (typeof pullRequest === "undefined") {
-    //   throw new Error(`Missing 'pull_request' from github action context.`);
-    // }
+    if (typeof pullRequest === "undefined") {
+      throw new Error(github.context.payload);
+    }
 
     // github octokit client with given token
     const octokit = github.getOctokit(GITHUB_TOKEN);
