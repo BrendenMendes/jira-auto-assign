@@ -39,9 +39,14 @@ async function run() {
     const inputs = getInputs();
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
     const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
-    console.log(github.context.payload.after)
-    const diff: child.ChildProcess = child.exec(`git diff --name-only origin/master...${github.context.payload.after}`);
-    console.log(diff.stdout);
+    child.exec(`git diff --name-only origin/master...${github.context.payload.after}`, (error: Error | null, stdout: string, stderr: string) => {
+      if (error) {
+        console.error(`exec error: ${error}`);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+    });
     const { pull_request: pullRequest } = github.context.payload;
 
     if (typeof pullRequest === "undefined") {
