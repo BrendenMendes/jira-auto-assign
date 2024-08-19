@@ -40,13 +40,12 @@ async function run() {
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
     const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
     child.exec(`git diff --name-only origin/master...${github.context.payload.after}`, (error: Error | null, stdout: string, stderr: string) => {
-      if (error) {
-        console.error(`exec error: ${error}`);
-        return;
+      if (error || stderr) {
+        throw new Error(`exec error: ${error || stderr}`);
       }
       console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
     });
+    console.log(github.context.payload)
     // const { pull_request: pullRequest } = github.context.payload;
 
     // if (typeof pullRequest === "undefined") {
