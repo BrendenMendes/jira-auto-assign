@@ -9682,10 +9682,10 @@ function run() {
                 console.log(`stdout: ${stdout}`);
                 console.error(`stderr: ${stderr}`);
             });
-            const { pull_request: pullRequest } = github.context.payload;
-            if (typeof pullRequest === "undefined") {
-                throw new Error(`Missing 'pull_request' from github action context.`);
-            }
+            // const { pull_request: pullRequest } = github.context.payload;
+            // if (typeof pullRequest === "undefined") {
+            //   throw new Error(`Missing 'pull_request' from github action context.`);
+            // }
             // github octokit client with given token
             const octokit = github.getOctokit(GITHUB_TOKEN);
             const username = USERNAME;
