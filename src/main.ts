@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
+import * as child from "child_process";
 import { ActionInputs, JIRA } from "./types";
 
 import { getJIRAClient } from "./utils";
@@ -21,10 +22,10 @@ const getInputs = (): ActionInputs => {
   const JIRA_EMAIL: string = core.getInput("jira-email", {
     required: true,
   });
-  const CHANGED_FILES: string = core.getInput("changed-files", {
+  const PUSH_COMMIT: string = core.getInput("push-commit", {
     required: true
   });
-  console.log(ISSUE_KEY, JIRA_TOKEN, USERNAME, JIRA_EMAIL, CHANGED_FILES)
+  console.log(ISSUE_KEY, JIRA_TOKEN, USERNAME, JIRA_EMAIL, PUSH_COMMIT)
   return {
     ISSUE_KEY,
     JIRA_TOKEN,
@@ -34,7 +35,7 @@ const getInputs = (): ActionInputs => {
     JIRA_DOMAIN: JIRA_DOMAIN.endsWith("/")
       ? JIRA_DOMAIN.replace(/\/$/, "")
       : JIRA_DOMAIN,
-    CHANGED_FILES
+    PUSH_COMMIT
   };
 };
 
@@ -42,9 +43,11 @@ async function run() {
   try {
     const inputs = getInputs();
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
-    const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, CHANGED_FILES } = inputs;
-    console.log(CHANGED_FILES)
+    const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, PUSH_COMMIT } = inputs;
+    console.log(PUSH_COMMIT)
     console.log(github.context.payload)
+    const diff: child.ChildProcess = child.exec(`git diff --name-only origin/master...origin/${PUSH_COMMIT}`);
+    console.log(diff);
     const { pull_request: pullRequest } = github.context.payload;
 
     if (typeof pullRequest === "undefined") {

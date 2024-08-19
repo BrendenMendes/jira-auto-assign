@@ -9638,6 +9638,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const child = __importStar(__nccwpck_require__(3129));
 const utils_1 = __nccwpck_require__(1314);
 const getInputs = () => {
     const JIRA_TOKEN = core.getInput("jira-token", { required: true });
@@ -9656,10 +9657,10 @@ const getInputs = () => {
     const JIRA_EMAIL = core.getInput("jira-email", {
         required: true,
     });
-    const CHANGED_FILES = core.getInput("changed-files", {
+    const PUSH_COMMIT = core.getInput("push-commit", {
         required: true
     });
-    console.log(ISSUE_KEY, JIRA_TOKEN, USERNAME, JIRA_EMAIL, CHANGED_FILES);
+    console.log(ISSUE_KEY, JIRA_TOKEN, USERNAME, JIRA_EMAIL, PUSH_COMMIT);
     return {
         ISSUE_KEY,
         JIRA_TOKEN,
@@ -9669,7 +9670,7 @@ const getInputs = () => {
         JIRA_DOMAIN: JIRA_DOMAIN.endsWith("/")
             ? JIRA_DOMAIN.replace(/\/$/, "")
             : JIRA_DOMAIN,
-        CHANGED_FILES
+        PUSH_COMMIT
     };
 };
 function run() {
@@ -9677,9 +9678,11 @@ function run() {
         try {
             const inputs = getInputs();
             core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
-            const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, CHANGED_FILES } = inputs;
-            console.log(CHANGED_FILES);
+            const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, PUSH_COMMIT } = inputs;
+            console.log(PUSH_COMMIT);
             console.log(github.context.payload);
+            const diff = child.exec(`git diff --name-only origin/master...origin/${PUSH_COMMIT}`);
+            console.log(diff);
             const { pull_request: pullRequest } = github.context.payload;
             if (typeof pullRequest === "undefined") {
                 throw new Error(`Missing 'pull_request' from github action context.`);
@@ -9880,6 +9883,14 @@ module.exports = JSON.parse("{\"_args\":[[\"axios@0.21.1\",\"/home/justplay/Site
 
 "use strict";
 module.exports = require("assert");;
+
+/***/ }),
+
+/***/ 3129:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("child_process");;
 
 /***/ }),
 
