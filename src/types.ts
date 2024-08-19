@@ -165,7 +165,6 @@ export interface ActionInputs {
   GITHUB_TOKEN: string;
   USERNAME: string;
   JIRA_EMAIL: string;
-  PUSH_COMMIT: string;
 }
 
 export interface JIRAClient {

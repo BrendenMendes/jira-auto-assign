@@ -9657,10 +9657,6 @@ const getInputs = () => {
     const JIRA_EMAIL = core.getInput("jira-email", {
         required: true,
     });
-    const PUSH_COMMIT = core.getInput("push-commit", {
-        required: true
-    });
-    console.log(ISSUE_KEY, JIRA_TOKEN, USERNAME, JIRA_EMAIL, PUSH_COMMIT);
     return {
         ISSUE_KEY,
         JIRA_TOKEN,
@@ -9669,8 +9665,7 @@ const getInputs = () => {
         JIRA_EMAIL,
         JIRA_DOMAIN: JIRA_DOMAIN.endsWith("/")
             ? JIRA_DOMAIN.replace(/\/$/, "")
-            : JIRA_DOMAIN,
-        PUSH_COMMIT
+            : JIRA_DOMAIN
     };
 };
 function run() {
@@ -9678,11 +9673,10 @@ function run() {
         try {
             const inputs = getInputs();
             core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
-            const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL, PUSH_COMMIT } = inputs;
-            console.log(PUSH_COMMIT);
-            console.log(github.context.payload);
-            const diff = child.exec(`git diff --name-only origin/master...origin/${PUSH_COMMIT}`);
-            console.log(diff);
+            const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
+            console.log(github.context.payload.after);
+            const diff = child.exec(`git diff --name-only origin/master...${github.context.payload.after}`);
+            console.log(diff.stdout);
             const { pull_request: pullRequest } = github.context.payload;
             if (typeof pullRequest === "undefined") {
                 throw new Error(`Missing 'pull_request' from github action context.`);
