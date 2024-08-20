@@ -34,18 +34,27 @@ const getInputs = (): ActionInputs => {
   };
 };
 
+async function executeDiff() {
+  const diffPromise: Promise<string> = new Promise((resolve, reject) => {
+    child.exec(`git diff --name-only origin/master...${github.context.payload.after}`, (error: Error | null, stdout: string, stderr: string) => {
+      if (error || stderr) {
+        reject(error || stderr);
+      }
+      console.log(`stdout: ${stdout}`);
+      resolve(stdout);
+    });
+  });
+  return diffPromise;
+}
+
 async function run() {
   try {
     const inputs = getInputs();
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
     const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
-    child.exec(`git diff --name-only origin/master...${github.context.payload.after}`, (error: Error | null, stdout: string, stderr: string) => {
-      if (error || stderr) {
-        throw new Error(`exec error: ${error || stderr}`);
-      }
-      console.log(`stdout: ${stdout}`);
-    });
-    console.log(github.context.payload)
+    
+    const files = await executeDiff();
+    console.log(files, "files")
     // const { pull_request: pullRequest } = github.context.payload;
 
     // if (typeof pullRequest === "undefined") {

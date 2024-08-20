@@ -9668,19 +9668,28 @@ const getInputs = () => {
             : JIRA_DOMAIN
     };
 };
+function executeDiff() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const diffPromise = new Promise((resolve, reject) => {
+            child.exec(`git diff --name-only origin/master...${github.context.payload.after}`, (error, stdout, stderr) => {
+                if (error || stderr) {
+                    reject(error || stderr);
+                }
+                console.log(`stdout: ${stdout}`);
+                resolve(stdout);
+            });
+        });
+        return diffPromise;
+    });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputs = getInputs();
             core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
             const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
-            child.exec(`git diff --name-only origin/master...${github.context.payload.after}`, (error, stdout, stderr) => {
-                if (error || stderr) {
-                    throw new Error(`exec error: ${error || stderr}`);
-                }
-                console.log(`stdout: ${stdout}`);
-            });
-            console.log(github.context.payload);
+            const files = yield executeDiff();
+            console.log(files, "files");
             // const { pull_request: pullRequest } = github.context.payload;
             // if (typeof pullRequest === "undefined") {
             //   throw new Error(`Missing 'pull_request' from github action context.`);
