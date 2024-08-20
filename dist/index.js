@@ -9675,7 +9675,6 @@ function executeDiff() {
                 if (error || stderr) {
                     reject(error || stderr);
                 }
-                console.log(`stdout: ${stdout}`);
                 resolve(stdout);
             });
         });
@@ -9689,7 +9688,8 @@ function run() {
             core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
             const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
             const files = yield executeDiff();
-            console.log(files, "files");
+            const filesArr = files.split(".");
+            console.log(filesArr);
             // const { pull_request: pullRequest } = github.context.payload;
             // if (typeof pullRequest === "undefined") {
             //   throw new Error(`Missing 'pull_request' from github action context.`);

@@ -40,7 +40,6 @@ async function executeDiff() {
       if (error || stderr) {
         reject(error || stderr);
       }
-      console.log(`stdout: ${stdout}`);
       resolve(stdout);
     });
   });
@@ -54,7 +53,8 @@ async function run() {
     const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
     
     const files = await executeDiff();
-    console.log(files, "files")
+    const filesArr = files.split(".");
+    console.log(filesArr)
     // const { pull_request: pullRequest } = github.context.payload;
 
     // if (typeof pullRequest === "undefined") {
