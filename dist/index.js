@@ -9687,9 +9687,11 @@ function run() {
             const inputs = getInputs();
             core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
             const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
+            // const products = ["app", "recruit", "superadmin", "teamadmin"];
             const files = yield executeDiff();
-            const filesArr = files.split(".");
+            const filesArr = files.split(/\n/);
             console.log(filesArr);
+            // const productFiles = filesArr.filter(f => products.includes(f));
             // const { pull_request: pullRequest } = github.context.payload;
             // if (typeof pullRequest === "undefined") {
             //   throw new Error(`Missing 'pull_request' from github action context.`);
