@@ -83,7 +83,9 @@ async function run() {
 
     const jira = getJIRAClient(JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN);
 
-    await jira.setApps({apps, issueKey: ISSUE_KEY});
+    if (apps.length) {
+      await jira.setApps({apps, issueKey: ISSUE_KEY});
+    }
 
     const jiraUser = await jira.findUser({
       displayName: user.name,

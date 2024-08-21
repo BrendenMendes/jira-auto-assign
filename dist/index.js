@@ -9713,7 +9713,9 @@ function run() {
             if (!(user === null || user === void 0 ? void 0 : user.name))
                 throw new Error(`User not found: ${USERNAME} ${user === null || user === void 0 ? void 0 : user.name}`);
             const jira = utils_1.getJIRAClient(JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN);
-            yield jira.setApps({ apps, issueKey: ISSUE_KEY });
+            if (apps.length) {
+                yield jira.setApps({ apps, issueKey: ISSUE_KEY });
+            }
             const jiraUser = yield jira.findUser({
                 displayName: user.name,
                 issueKey: ISSUE_KEY,
