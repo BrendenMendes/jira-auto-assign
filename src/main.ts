@@ -52,11 +52,17 @@ async function run() {
     core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
     const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
     
-    // const products = ["app", "recruit", "superadmin", "teamadmin"];
+    const productsInFile = ["services/app", "services/recruit", "services/superadmin", "services/teamadmin"];
     const files = await executeDiff();
     const filesArr = files.split(/\n/);
-    console.log(filesArr)
-    // const productFiles = filesArr.filter(f => products.includes(f));
+    const productFilesOccurrence = productsInFile.map(p => filesArr.filter(f => f.includes(p)));
+    console.log(productFilesOccurrence)
+    const apps: string[] = [];
+    productFilesOccurrence[0].length ? apps.push("app") : null;
+    productFilesOccurrence[1].length ? apps.push("recruit") : null;
+    productFilesOccurrence[2].length ? apps.push("superadmin") : null;
+    productFilesOccurrence[3].length ? apps.push("teamadmin") : null;
+    console.log(apps)
     // const { pull_request: pullRequest } = github.context.payload;
 
     // if (typeof pullRequest === "undefined") {
@@ -86,6 +92,7 @@ async function run() {
 
 
     const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
+    console.log(products)
     /* if (assignee?.name === jiraUser.displayName) {
       console.log(`${ISSUE_KEY} is already assigned to ${assignee.name}`);
       return;
