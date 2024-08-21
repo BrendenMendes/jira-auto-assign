@@ -177,5 +177,5 @@ export interface JIRAClient {
   }) => Promise<JIRA.User>;
   getIssue: (key: string) => Promise<JIRA.Issue>;
   getTicketDetails: (key: string) => Promise<JIRADetails>;
-  setApp: (x: {apps: string[]; issueKey: string }) => Promise<void>;
+  setApps: (x: {apps: string[]; issueKey: string }) => Promise<void>;
 }

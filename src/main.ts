@@ -83,6 +83,8 @@ async function run() {
 
     const jira = getJIRAClient(JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN);
 
+    await jira.setApps({apps, issueKey: ISSUE_KEY});
+
     const jiraUser = await jira.findUser({
       displayName: user.name,
       issueKey: ISSUE_KEY,
@@ -91,8 +93,8 @@ async function run() {
       throw new Error(`JIRA account not found for ${user.name}`);
 
 
-    const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
-    console.log(products)
+    const { reviewers } = await jira.getTicketDetails(ISSUE_KEY);
+
     /* if (assignee?.name === jiraUser.displayName) {
       console.log(`${ISSUE_KEY} is already assigned to ${assignee.name}`);
       return;
@@ -101,10 +103,7 @@ async function run() {
     console.log(`${ISSUE_KEY} assigned to ${jiraUser.displayName}`);*/
     console.log(jiraUser);
     const obj: JIRA.PartialUserObj = {};
-    if (products) {
-      // products.forEach((product) => )
-    }
-    else if (reviewers) {
+    if (reviewers) {
       reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
     }
     obj[jiraUser.accountId] = {

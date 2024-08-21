@@ -102,7 +102,7 @@ export const getJIRAClient = (domain: string, email: string, token: string): JIR
     }
   };
 
-  const setApp: JIRAClient["setApp"] = async ({ apps, issueKey }) => {
+  const setApps: JIRAClient["setApps"] = async ({ apps, issueKey }) => {
     await client.put(`issue/${issueKey}`, {
       fields: {
         customfield_10043: apps
@@ -117,6 +117,6 @@ export const getJIRAClient = (domain: string, email: string, token: string): JIR
     findUser,
     assignUser,
     setReviewer,
-    setApp
+    setApps
   };
 };

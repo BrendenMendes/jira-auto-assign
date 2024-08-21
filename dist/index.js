@@ -9713,14 +9713,14 @@ function run() {
             if (!(user === null || user === void 0 ? void 0 : user.name))
                 throw new Error(`User not found: ${USERNAME} ${user === null || user === void 0 ? void 0 : user.name}`);
             const jira = utils_1.getJIRAClient(JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN);
+            yield jira.setApps({ apps, issueKey: ISSUE_KEY });
             const jiraUser = yield jira.findUser({
                 displayName: user.name,
                 issueKey: ISSUE_KEY,
             });
             if (!(jiraUser === null || jiraUser === void 0 ? void 0 : jiraUser.displayName))
                 throw new Error(`JIRA account not found for ${user.name}`);
-            const { reviewers, products } = yield jira.getTicketDetails(ISSUE_KEY);
-            console.log(products);
+            const { reviewers } = yield jira.getTicketDetails(ISSUE_KEY);
             /* if (assignee?.name === jiraUser.displayName) {
               console.log(`${ISSUE_KEY} is already assigned to ${assignee.name}`);
               return;
@@ -9729,10 +9729,7 @@ function run() {
             console.log(`${ISSUE_KEY} assigned to ${jiraUser.displayName}`);*/
             console.log(jiraUser);
             const obj = {};
-            if (products) {
-                // products.forEach((product) => )
-            }
-            else if (reviewers) {
+            if (reviewers) {
                 reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
             }
             obj[jiraUser.accountId] = {
@@ -9856,7 +9853,7 @@ const getJIRAClient = (domain, email, token) => {
             throw e;
         }
     });
-    const setApp = ({ apps, issueKey }) => __awaiter(void 0, void 0, void 0, function* () {
+    const setApps = ({ apps, issueKey }) => __awaiter(void 0, void 0, void 0, function* () {
         yield client.put(`issue/${issueKey}`, {
             fields: {
                 customfield_10043: apps
@@ -9870,7 +9867,7 @@ const getJIRAClient = (domain, email, token) => {
         findUser,
         assignUser,
         setReviewer,
-        setApp
+        setApps
     };
 };
 exports.getJIRAClient = getJIRAClient;
