@@ -81,7 +81,7 @@ async function run() {
       displayName: user.name,
       issueKey: ISSUE_KEY,
     });
-    if (!jiraUser?.displayName)
+    // if (!jiraUser?.displayName)
       throw new Error(`JIRA account not found for ${user.name}`);
 
     const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
