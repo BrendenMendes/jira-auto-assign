@@ -62,7 +62,6 @@ async function run() {
     productFilesOccurrence[1].length ? apps.push("recruit") : null;
     productFilesOccurrence[2].length ? apps.push("superadmin") : null;
     productFilesOccurrence[3].length ? apps.push("teamadmin") : null;
-    console.log(apps)
 
     // github octokit client with given token
     const octokit = github.getOctokit(GITHUB_TOKEN);
@@ -87,6 +86,7 @@ async function run() {
 
     const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
     console.log(reviewers, "reviewershere")
+    console.log(apps)
     console.log(products, "productshere")
     const { pull_request: pullRequest } = github.context.payload;
     console.log(pullRequest, "pullRequesthere")
@@ -97,7 +97,6 @@ async function run() {
       }
     }
     else {
-      console.log(jiraUser);
       const obj: JIRA.PartialUserObj = {};
       if (reviewers) {
         reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
