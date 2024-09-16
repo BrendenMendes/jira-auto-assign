@@ -91,7 +91,7 @@ async function run() {
     const { pull_request: pullRequest } = github.context.payload;
     console.log(pullRequest, "pullRequesthere")
     if (typeof pullRequest === "undefined") {
-      const productChange: string[] = [...products].filter(p => !apps.includes(p));
+      const productChange: string[] = products.length ? [...products].filter(p => !apps.includes(p)) : ["null"];
       // throw new Error(`Missing 'pull_request' from github action context.`);
       if (apps.length && productChange.length) {
         await jira.setApps({apps, issueKey: ISSUE_KEY});
