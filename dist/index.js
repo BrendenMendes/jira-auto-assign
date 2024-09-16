@@ -9712,8 +9712,8 @@ function run() {
                 displayName: user.name,
                 issueKey: ISSUE_KEY,
             });
-            // if (!jiraUser?.displayName)
-            throw new Error(`JIRA account not found for ${user.name}`);
+            if (!(jiraUser === null || jiraUser === void 0 ? void 0 : jiraUser.displayName))
+                throw new Error(`JIRA account not found for ${user.name}`);
             const { reviewers, products } = yield jira.getTicketDetails(ISSUE_KEY);
             console.log(reviewers, "reviewershere");
             console.log(apps);
