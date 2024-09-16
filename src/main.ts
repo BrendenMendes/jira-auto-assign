@@ -63,11 +63,6 @@ async function run() {
     productFilesOccurrence[2].length ? apps.push("superadmin") : null;
     productFilesOccurrence[3].length ? apps.push("teamadmin") : null;
     console.log(apps)
-    // const { pull_request: pullRequest } = github.context.payload;
-
-    // if (typeof pullRequest === "undefined") {
-    //   throw new Error(`Missing 'pull_request' from github action context.`);
-    // }
 
     // github octokit client with given token
     const octokit = github.getOctokit(GITHUB_TOKEN);
@@ -83,10 +78,6 @@ async function run() {
 
     const jira = getJIRAClient(JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN);
 
-    if (apps.length) {
-      await jira.setApps({apps, issueKey: ISSUE_KEY});
-    }
-
     const jiraUser = await jira.findUser({
       displayName: user.name,
       issueKey: ISSUE_KEY,
@@ -94,34 +85,36 @@ async function run() {
     if (!jiraUser?.displayName)
       throw new Error(`JIRA account not found for ${user.name}`);
 
-
-    const { reviewers } = await jira.getTicketDetails(ISSUE_KEY);
-
-    /* if (assignee?.name === jiraUser.displayName) {
-      console.log(`${ISSUE_KEY} is already assigned to ${assignee.name}`);
-      return;
+    const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
+    
+    const { pull_request: pullRequest } = github.context.payload;
+    if (typeof pullRequest === "undefined") {
+      // throw new Error(`Missing 'pull_request' from github action context.`);
+      if (apps.length && products.filter(p => !apps.includes(p))) {
+        await jira.setApps({apps, issueKey: ISSUE_KEY});
+      }
     }
-    await jira.assignUser({ userId: jiraUser.accountId, issueKey: ISSUE_KEY });
-    console.log(`${ISSUE_KEY} assigned to ${jiraUser.displayName}`);*/
-    console.log(jiraUser);
-    const obj: JIRA.PartialUserObj = {};
-    if (reviewers) {
-      reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
+    else {
+      console.log(jiraUser);
+      const obj: JIRA.PartialUserObj = {};
+      if (reviewers) {
+        reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
+      }
+      obj[jiraUser.accountId] = {
+        self: jiraUser.self,
+        accountId: jiraUser.accountId,
+        accountType: jiraUser.accountType,
+        displayName: jiraUser.displayName,
+        avatarUrls: jiraUser.avatarUrls,
+        active: jiraUser.active,
+        timeZone: jiraUser.timeZone
+      };
+      const users = Object.values(obj);
+      await jira.setReviewer({
+        users,
+        issueKey: ISSUE_KEY
+      });
     }
-    obj[jiraUser.accountId] = {
-      self: jiraUser.self,
-      accountId: jiraUser.accountId,
-      accountType: jiraUser.accountType,
-      displayName: jiraUser.displayName,
-      avatarUrls: jiraUser.avatarUrls,
-      active: jiraUser.active,
-      timeZone: jiraUser.timeZone
-    };
-    const users = Object.values(obj);
-    await jira.setReviewer({
-      users,
-      issueKey: ISSUE_KEY
-    });
   } catch (error) {
     console.log({ error });
     core.setFailed(error.message);
