@@ -86,6 +86,7 @@ async function run() {
       throw new Error(`JIRA account not found for ${user.name}`);
 
     const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
+    console.log(products, "productshere")
     
     const { pull_request: pullRequest } = github.context.payload;
     if (typeof pullRequest === "undefined") {
