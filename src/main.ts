@@ -92,7 +92,7 @@ async function run() {
     console.log(pullRequest, "pullRequesthere")
     if (typeof pullRequest === "undefined") {
       // throw new Error(`Missing 'pull_request' from github action context.`);
-      if (apps.length && products.filter(p => !apps.includes(p))) {
+      if (apps.length && products) {
         await jira.setApps({apps, issueKey: ISSUE_KEY});
       }
     }

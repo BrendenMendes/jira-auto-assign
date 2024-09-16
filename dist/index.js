@@ -9697,11 +9697,6 @@ function run() {
             productFilesOccurrence[1].length ? apps.push("recruit") : null;
             productFilesOccurrence[2].length ? apps.push("superadmin") : null;
             productFilesOccurrence[3].length ? apps.push("teamadmin") : null;
-            console.log(apps);
-            // const { pull_request: pullRequest } = github.context.payload;
-            // if (typeof pullRequest === "undefined") {
-            //   throw new Error(`Missing 'pull_request' from github action context.`);
-            // }
             // github octokit client with given token
             const octokit = github.getOctokit(GITHUB_TOKEN);
             const username = USERNAME;
@@ -9713,41 +9708,44 @@ function run() {
             if (!(user === null || user === void 0 ? void 0 : user.name))
                 throw new Error(`User not found: ${USERNAME} ${user === null || user === void 0 ? void 0 : user.name}`);
             const jira = utils_1.getJIRAClient(JIRA_DOMAIN, JIRA_EMAIL, JIRA_TOKEN);
-            if (apps.length) {
-                yield jira.setApps({ apps, issueKey: ISSUE_KEY });
-            }
             const jiraUser = yield jira.findUser({
                 displayName: user.name,
                 issueKey: ISSUE_KEY,
             });
-            if (!(jiraUser === null || jiraUser === void 0 ? void 0 : jiraUser.displayName))
-                throw new Error(`JIRA account not found for ${user.name}`);
-            const { reviewers } = yield jira.getTicketDetails(ISSUE_KEY);
-            /* if (assignee?.name === jiraUser.displayName) {
-              console.log(`${ISSUE_KEY} is already assigned to ${assignee.name}`);
-              return;
+            // if (!jiraUser?.displayName)
+            throw new Error(`JIRA account not found for ${user.name}`);
+            const { reviewers, products } = yield jira.getTicketDetails(ISSUE_KEY);
+            console.log(reviewers, "reviewershere");
+            console.log(apps);
+            console.log(products, "productshere");
+            const { pull_request: pullRequest } = github.context.payload;
+            console.log(pullRequest, "pullRequesthere");
+            if (typeof pullRequest === "undefined") {
+                // throw new Error(`Missing 'pull_request' from github action context.`);
+                if (apps.length && products) {
+                    yield jira.setApps({ apps, issueKey: ISSUE_KEY });
+                }
             }
-            await jira.assignUser({ userId: jiraUser.accountId, issueKey: ISSUE_KEY });
-            console.log(`${ISSUE_KEY} assigned to ${jiraUser.displayName}`);*/
-            console.log(jiraUser);
-            const obj = {};
-            if (reviewers) {
-                reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
+            else {
+                const obj = {};
+                if (reviewers) {
+                    reviewers.forEach((reviewer) => obj[reviewer.accountId] = reviewer);
+                }
+                obj[jiraUser.accountId] = {
+                    self: jiraUser.self,
+                    accountId: jiraUser.accountId,
+                    accountType: jiraUser.accountType,
+                    displayName: jiraUser.displayName,
+                    avatarUrls: jiraUser.avatarUrls,
+                    active: jiraUser.active,
+                    timeZone: jiraUser.timeZone
+                };
+                const users = Object.values(obj);
+                yield jira.setReviewer({
+                    users,
+                    issueKey: ISSUE_KEY
+                });
             }
-            obj[jiraUser.accountId] = {
-                self: jiraUser.self,
-                accountId: jiraUser.accountId,
-                accountType: jiraUser.accountType,
-                displayName: jiraUser.displayName,
-                avatarUrls: jiraUser.avatarUrls,
-                active: jiraUser.active,
-                timeZone: jiraUser.timeZone
-            };
-            const users = Object.values(obj);
-            yield jira.setReviewer({
-                users,
-                issueKey: ISSUE_KEY
-            });
         }
         catch (error) {
             console.log({ error });
