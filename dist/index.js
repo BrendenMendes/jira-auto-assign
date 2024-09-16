@@ -9715,16 +9715,11 @@ function run() {
             if (!(jiraUser === null || jiraUser === void 0 ? void 0 : jiraUser.displayName))
                 throw new Error(`JIRA account not found for ${user.name}`);
             const { reviewers, products } = yield jira.getTicketDetails(ISSUE_KEY);
-            console.log(reviewers, "reviewershere");
-            console.log(apps);
-            console.log(products, "productshere");
             const { pull_request: pullRequest } = github.context.payload;
-            console.log(pullRequest, "pullRequesthere");
             if (typeof pullRequest === "undefined") {
-                const productChange = (products === null || products === void 0 ? void 0 : products.length) ? [...products].filter(p => !apps.includes(p)) : ["null"];
+                const productChange = (products === null || products === void 0 ? void 0 : products.length) ? [...products].filter(p => !apps.includes(p)) : [];
                 // throw new Error(`Missing 'pull_request' from github action context.`);
-                console.log(productChange);
-                if (apps.length && productChange.length) {
+                if (apps.length && ((productChange === null || productChange === void 0 ? void 0 : productChange.length) || products === null)) {
                     yield jira.setApps({ apps, issueKey: ISSUE_KEY });
                 }
             }
