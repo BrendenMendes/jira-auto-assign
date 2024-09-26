@@ -55,6 +55,7 @@ async function run() {
     const productsInFile = ["services/app", "services/recruit", "services/superadmin", "services/teamadmin"];
     const files = await executeDiff();
     const filesArr = files.split(/\n/);
+    console.log(filesArr)
     const productFilesOccurrence = productsInFile.map(p => filesArr.filter(f => f.includes(p)));
     console.log(productFilesOccurrence)
     const apps: string[] = [];
