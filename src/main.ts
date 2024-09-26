@@ -57,12 +57,12 @@ async function run() {
     const filesArr = files.split(/\n/);
     console.log(filesArr)
     const productFilesOccurrence = productsInFile.map(p => filesArr.filter(f => f.includes(p)));
-    console.log(productFilesOccurrence)
     const apps: string[] = [];
     productFilesOccurrence[0].length ? apps.push("app") : null;
     productFilesOccurrence[1].length ? apps.push("recruit") : null;
     productFilesOccurrence[2].length ? apps.push("superadmin") : null;
     productFilesOccurrence[3].length ? apps.push("teamadmin") : null;
+    console.log(apps)
 
     // github octokit client with given token
     const octokit = github.getOctokit(GITHUB_TOKEN);
@@ -87,9 +87,11 @@ async function run() {
 
     const { reviewers, products } = await jira.getTicketDetails(ISSUE_KEY);
     const { pull_request: pullRequest } = github.context.payload;
+    console.log(pullRequest, products)
     if (typeof pullRequest === "undefined") {
       const productChange: string[] = products?.length ? [...products].filter(p => !apps.includes(p)) : [];
       // throw new Error(`Missing 'pull_request' from github action context.`);
+      console.log(productChange)
       if (apps.length && (productChange?.length || products === null)) {
         await jira.setApps({apps, issueKey: ISSUE_KEY});
       }

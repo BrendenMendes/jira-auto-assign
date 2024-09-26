@@ -9692,12 +9692,12 @@ function run() {
             const filesArr = files.split(/\n/);
             console.log(filesArr);
             const productFilesOccurrence = productsInFile.map(p => filesArr.filter(f => f.includes(p)));
-            console.log(productFilesOccurrence);
             const apps = [];
             productFilesOccurrence[0].length ? apps.push("app") : null;
             productFilesOccurrence[1].length ? apps.push("recruit") : null;
             productFilesOccurrence[2].length ? apps.push("superadmin") : null;
             productFilesOccurrence[3].length ? apps.push("teamadmin") : null;
+            console.log(apps);
             // github octokit client with given token
             const octokit = github.getOctokit(GITHUB_TOKEN);
             const username = USERNAME;
@@ -9717,9 +9717,11 @@ function run() {
                 throw new Error(`JIRA account not found for ${user.name}`);
             const { reviewers, products } = yield jira.getTicketDetails(ISSUE_KEY);
             const { pull_request: pullRequest } = github.context.payload;
+            console.log(pullRequest, products);
             if (typeof pullRequest === "undefined") {
                 const productChange = (products === null || products === void 0 ? void 0 : products.length) ? [...products].filter(p => !apps.includes(p)) : [];
                 // throw new Error(`Missing 'pull_request' from github action context.`);
+                console.log(productChange);
                 if (apps.length && ((productChange === null || productChange === void 0 ? void 0 : productChange.length) || products === null)) {
                     yield jira.setApps({ apps, issueKey: ISSUE_KEY });
                 }
