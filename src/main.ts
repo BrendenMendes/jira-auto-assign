@@ -89,7 +89,7 @@ async function run() {
     const { pull_request: pullRequest } = github.context.payload;
     console.log(pullRequest, products)
     if (typeof pullRequest === "undefined") {
-      const productChange: string[] = products?.length ? [...products].filter(p => !apps.includes(p)) : [];
+      const productChange: string[] = apps?.length > products?.length ? apps : (products?.length ? [...products].filter(p => !apps.includes(p)) : []);
       // throw new Error(`Missing 'pull_request' from github action context.`);
       console.log(productChange)
       if (apps.length && (productChange?.length || products === null)) {

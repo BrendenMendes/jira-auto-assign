@@ -9719,7 +9719,7 @@ function run() {
             const { pull_request: pullRequest } = github.context.payload;
             console.log(pullRequest, products);
             if (typeof pullRequest === "undefined") {
-                const productChange = (products === null || products === void 0 ? void 0 : products.length) ? [...products].filter(p => !apps.includes(p)) : [];
+                const productChange = (apps === null || apps === void 0 ? void 0 : apps.length) > (products === null || products === void 0 ? void 0 : products.length) ? apps : ((products === null || products === void 0 ? void 0 : products.length) ? [...products].filter(p => !apps.includes(p)) : []);
                 // throw new Error(`Missing 'pull_request' from github action context.`);
                 console.log(productChange);
                 if (apps.length && ((productChange === null || productChange === void 0 ? void 0 : productChange.length) || products === null)) {
