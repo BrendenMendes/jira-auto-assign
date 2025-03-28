@@ -9687,7 +9687,7 @@ function run() {
             const inputs = getInputs();
             core.debug(`inputs: ${JSON.stringify(inputs, null, 2)}`);
             const { JIRA_TOKEN, GITHUB_TOKEN, JIRA_DOMAIN, ISSUE_KEY, USERNAME, JIRA_EMAIL } = inputs;
-            const productsInFile = ["services/app", "services/recruit", "services/superadmin", "services/teamadmin"];
+            const productsInFile = ["services/app", "services/recruit", "services/superadmin", "services/teamadmin", "services/stats-spots-advanced", "linked_modules/justplay-stats", "services/stats-spots", "linked_modules/justplay-video"];
             const files = yield executeDiff();
             const filesArr = files.split(/\n/);
             console.log(filesArr);
@@ -9697,6 +9697,10 @@ function run() {
             productFilesOccurrence[1].length ? apps.push("recruit") : null;
             productFilesOccurrence[2].length ? apps.push("superadmin") : null;
             productFilesOccurrence[3].length ? apps.push("teamadmin") : null;
+            productFilesOccurrence[4].length ? apps.push("stats-spots-advanced") : null;
+            productFilesOccurrence[5].length ? apps.push("justplay-stats") : null;
+            productFilesOccurrence[6].length ? apps.push("stats-spots") : null;
+            productFilesOccurrence[7].length ? apps.push("justplay-video") : null;
             console.log(apps);
             // github octokit client with given token
             const octokit = github.getOctokit(GITHUB_TOKEN);

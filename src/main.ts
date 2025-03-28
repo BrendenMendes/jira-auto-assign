@@ -5,12 +5,6 @@ import { ActionInputs, JIRA } from "./types";
 
 import { getJIRAClient } from "./utils";
 
-function extractNofromBranch() {
-  if (github.context.payload.after.match(/\d{4}/)) {
-    return `JUS-${github.context.payload.after.match(/\d{4}/)[0]}`
-  }
-}
-
 const getInputs = (): ActionInputs => {
   const JIRA_TOKEN: string = core.getInput("jira-token", { required: true });
   const GITHUB_TOKEN: string = core.getInput("github-token", {
@@ -21,7 +15,7 @@ const getInputs = (): ActionInputs => {
   });
   const ISSUE_KEY: string = core.getInput("issue-key", {
     required: true,
-  }) || extractNofromBranch();
+  });
   const USERNAME: string = core.getInput("username", {
     required: true,
   });
