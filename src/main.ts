@@ -7,6 +7,7 @@ import { getJIRAClient } from "./utils";
 
 const getInputs = (): ActionInputs => {
   const JIRA_TOKEN: string = core.getInput("jira-token", { required: true });
+  console.log(JIRA_TOKEN)
   const GITHUB_TOKEN: string = core.getInput("github-token", {
     required: true,
   });
